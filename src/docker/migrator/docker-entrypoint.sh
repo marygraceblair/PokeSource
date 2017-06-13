@@ -9,7 +9,7 @@ cd ${PROJECT_PATH}
 
 __fn_show_help() {
     echo "--------------------"
-    echo "## veekun-pokedex-migrations ##"
+    echo "## pokedex-data migrator ##"
     echo "--------------------"
     echo "List of commands:"
     echo "--------------------"

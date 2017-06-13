@@ -16,7 +16,7 @@ in order to fix, simplify, standardise, optimize and complement the original dat
 To initialize the project you need to run this command:
 
 ```bash
-./docker-run.sh init
+./pokedex init
 ```
 
 The process will take a while, since it recreates the veekun SQLite DB from the CSV files and exports the 
@@ -26,17 +26,17 @@ Showdown data to JSON.
 
 Run this command to see the list of available maintenance scripts:
 ```bash
-./docker-run.sh help
+./pokedex help
 ```
 
 Running all migrations against the veekun pokedex SQLite DB
 ```bash
-./docker-run.sh migrate
+./pokedex migrate
 ```
 
 Export the current state of the DB to CSV. This will save all the files under the `build/csv` folder.
 ```bash
-./docker-run.sh dump
+./pokedex dump
 ```
 
 ## Migrations Roadmap
