@@ -3,18 +3,55 @@ All data from main series Pokémon games, originally from the veekun/pokedex pro
 
 The data source comes directly from the 
 [`veekun/pokedex`](https://github.com/veekun/pokedex) CSV files,
-which are generated from
-the ripped data of the videogames, 
-but a [set of changes may be applied](https://github.com/metaunicorn/pokedex-admin#modifications) 
-on top in order top optimize and tweak the database depending on the needs of this project.
+which are mostly generated from the ripped videogame data (not 100% though).
 
-In this project you will also find zipped SQLite files which is basically all the CSV
-files dumped into SQL tables.
+In this fork, a set of changes called `migrations` will be applied on top of the original project
+in order to fix, simplify, standardise, optimize and complement the original database (check the migrations roadmap).
 
-All these files are generated with the UI and command-line tools of the 
-[`metaunicorn/pokedex-admin`](https://github.com/metaunicorn/pokedex-admin) project,
-so for maintaining this project, it has to be done through that project (manual changes
-will be no accepted).
+## Requirements
+- Docker
+
+## Setup
+
+To initialize the project you need to run this command:
+
+```bash
+./docker-run.sh init
+```
+
+The process will take a while, since it recreates the veekun SQLite DB from the CSV files and exports the 
+Showdown data to JSON.
+
+## Maintenance
+
+Run this command to see the list of available maintenance scripts:
+```bash
+./docker-run.sh help
+```
+
+Running all migrations against the veekun pokedex SQLite DB
+```bash
+./docker-run.sh migrate
+```
+
+Export the current state of the DB to CSV. This will save all the files under the `build/csv` folder.
+```bash
+./docker-run.sh dump
+```
+
+## Migrations Roadmap
+
+- ID columns for every table (single primary keys work better with ORMs).
+- Robust CSV library (`csvkit`) to avoid CSV parsing errors and have more flexibility and options.
+- Avoid human errors in CSV files by encouraging migration scripts over manual CSV changes.
+- Drop support for unofficial data (non official languages, abilities, etc.).
+- Drop support for non core main-series data (Conquest, Colosseum, XD, etc).
+- Drop support for mini game data (PokeAthlon, Contests, etc).
+- Add information from Showdown (tiers, strategies, etc).
+- Add support for different Pokemon stats/moves/etc depending on the Generation and/or Version Group,
+to keep track of the changes through all generations.
+- Simplify pokemon, pokemon_species, pokemon_forms, pokemon_types, pokemon_abilities and pokemon_egg_group
+tables for better maintainability
 
 ## License
 

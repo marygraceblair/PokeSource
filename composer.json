@@ -1,0 +1,14 @@
+{
+  "require": {
+    "php": "^7.0",
+    "doctrine/dbal": "~2.5.12",
+    "league/csv": "^8.2",
+    "league/climate": "^3.2",
+    "illuminate/support": "^5.4"
+  },
+  "config": {
+    "preferred-install": "dist"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}

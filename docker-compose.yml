@@ -1,0 +1,50 @@
+version: '2.1'
+services:
+  setup:
+    build: ./src/docker/setup/
+    environment:
+      PROJECT_PATH: "/project"
+      BUILD_PATH: "/project/build"
+      DIST_PATH: "/project/dist"
+    volumes:
+      - ./:/project
+    healthcheck:
+      test: ["CMD", "php", "/project/src/scripts/setup-ready.php"]
+      interval: 1m30s
+      timeout: 15s
+      retries: 3
+  migrator:
+    build: ./src/docker/migrator/
+    environment:
+      PROJECT_PATH: "/project"
+      BUILD_PATH: "/project/build"
+      DIST_PATH: "/project/dist"
+    volumes:
+      - ./:/project
+    depends_on:
+      setup:
+        condition: service_healthy
+      showdown:
+        condition: service_started
+      pokedex:
+        condition: service_started
+  showdown:
+    build: ./src/docker/showdown/
+    environment:
+      PROJECT_PATH: "/project"
+      BUILD_PATH: "/project/build"
+      SOURCES_PATH: "/project/git_dependencies/pokemon-showdown"
+    volumes:
+      - ./:/project
+    depends_on:
+      setup:
+        condition: service_healthy
+  pokedex:
+    build: ./src/docker/pokedex/
+    environment:
+      SOURCES_PATH: "/project/git_dependencies/veekun-pokedex"
+    volumes:
+      - ./:/project
+    depends_on:
+      setup:
+        condition: service_healthy

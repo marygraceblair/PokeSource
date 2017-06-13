@@ -1,10 +1,12 @@
 *~
 .DS_Store
-.tmp
-tmp
 .idea
 nbproject
 *.log
-*.lock
+*.cache
 *.sqlite
 *.sqlite-journal
+/vendor
+/build
+/node_modules
+/git_dependencies
