@@ -1,8 +1,8 @@
 id,identifier,formula
-1,slow,"\frac{5x^3}{4}"
+1,slow,\frac{5x^3}{4}
 2,medium,x^3
-3,fast,"\frac{4x^3}{5}"
-4,medium-slow,"\frac{6x^3}{5} - 15x^2 + 100x - 140"
+3,fast,\frac{4x^3}{5}
+4,medium-slow,\frac{6x^3}{5} - 15x^2 + 100x - 140
 5,slow-then-very-fast,"\begin{cases}
 \frac{ x^3 \left( 100 - x \right) }{50},    & \text{if } x \leq 50  \\
 \frac{ x^3 \left( 150 - x \right) }{100},   & \text{if } 50 < x \leq 68  \\
