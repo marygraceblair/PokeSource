@@ -9,13 +9,12 @@ cd ${PROJECT_PATH}
 
 __fn_show_help() {
     echo "--------------------"
-    echo "## pokedex-data migrator ##"
+    echo "## pokemon-showdown ##"
     echo "--------------------"
     echo "List of commands:"
     echo "--------------------"
     echo "help (default)"
-    echo "migrate: Runs all migration scripts."
-    echo "dump: Exports the current state of the SQLite DB to CSV."
+    echo "export [@]: Converts and exports the Showdown data to JSON. Valid arguments: any jq options."
     echo "--------------------"
 }
 
@@ -24,9 +23,7 @@ case "$1" in
    ;;
    "help") __fn_show_help
    ;;
-   "migrate") php src/scripts/migrate.php
-   ;;
-   "dump")  php src/scripts/db2csv.php
+   "export") ./src/pokemon-showdown/data2json.sh ${@:2}
    ;;
    *) exec ${@}
    ;;

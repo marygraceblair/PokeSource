@@ -8,8 +8,8 @@ fi
 
 cd ${SOURCES_PATH}
 
-if [ ! -f "${SOURCES_PATH}/bin/python" ] || [ ! -f "${SOURCES_PATH}/bin/pokedex" ] ; then
-    echo "Building the bin/pokedex executable ..."
+if [ ! -f "${SOURCES_PATH}/bin/python" ] || [ ! -f "${SOURCES_PATH}/bin/veekun-pokedex" ] ; then
+    echo "Building the bin/veekun-pokedex executable ..."
     virtualenv $SOURCES_PATH --python=python2
     bin/python setup.py develop
 fi

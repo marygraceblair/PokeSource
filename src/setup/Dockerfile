@@ -12,7 +12,7 @@ RUN echo "Upgrading distro..." && \
     # Set default locale
     locale-gen en_GB.UTF-8 > /dev/null && \
 
-    echo "Installing PHP extensions..." && \
+    echo "Installing PHP extensions required by composer..." && \
     docker-php-ext-install -j$(nproc) zip > /dev/null && \
 
     echo "Installing Composer..." && \

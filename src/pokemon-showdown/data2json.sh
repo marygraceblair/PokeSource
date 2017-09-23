@@ -14,7 +14,7 @@ if [ -z "${BUILD_PATH}" ]; then
 fi
 cd ${PROJECT_PATH}
 
-OUTPUT_PATH="${BUILD_PATH}/showdown"
+OUTPUT_PATH="${BUILD_PATH}/pokemon-showdown"
 
 rm -rf $OUTPUT_PATH
 mkdir -p $OUTPUT_PATH
@@ -40,7 +40,7 @@ __convert_js_object(){
     mkdir -p $(dirname $JSON_FILE)
 
     echo -n "Generating ${JSON_FILE}... "
-    node ./src/scripts/module2json.js $f | jq ${@:2} . > ${JSON_FILE}
+    node ./src/pokemon-showdown/module2json.js $f | jq ${@:2} . > ${JSON_FILE}
     echo "DONE."
 }
 

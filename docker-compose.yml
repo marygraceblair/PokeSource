@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   setup:
-    build: ./src/docker/setup/
+    build: ./src/setup/
     environment:
       PROJECT_PATH: "/project"
       BUILD_PATH: "/project/build"
@@ -9,40 +9,41 @@ services:
     volumes:
       - ./:/project
     healthcheck:
-      test: ["CMD", "php", "/project/src/scripts/setup-ready.php"]
+      test: ["CMD", "php", "/project/src/setup/healthcheck.php"]
       interval: 1m30s
       timeout: 15s
       retries: 3
-  migrator:
-    build: ./src/docker/migrator/
+  data_transformer:
+    build: ./src/data-transformer/
     environment:
       PROJECT_PATH: "/project"
       BUILD_PATH: "/project/build"
       DIST_PATH: "/project/dist"
+      DB_FILE: "/project/vendor/veekun-pokedex/pokedex/data/pokedex.sqlite"
     volumes:
       - ./:/project
     depends_on:
       setup:
         condition: service_healthy
-      showdown:
+      pokemon_showdown:
         condition: service_started
-      pokedex:
+      veekun_pokedex:
         condition: service_started
-  showdown:
-    build: ./src/docker/showdown/
+  pokemon_showdown:
+    build: ./src/pokemon-showdown/
     environment:
       PROJECT_PATH: "/project"
       BUILD_PATH: "/project/build"
-      SOURCES_PATH: "/project/git_dependencies/pokemon-showdown"
+      SOURCES_PATH: "/project/vendor/pokemon-showdown"
     volumes:
       - ./:/project
     depends_on:
       setup:
         condition: service_healthy
-  pokedex:
-    build: ./src/docker/pokedex/
+  veekun_pokedex:
+    build: ./src/veekun-pokedex/
     environment:
-      SOURCES_PATH: "/project/git_dependencies/veekun-pokedex"
+      SOURCES_PATH: "/project/vendor/veekun-pokedex"
     volumes:
       - ./:/project
     depends_on:

@@ -13,7 +13,8 @@ in order to fix, simplify, standardise, optimize and complement the original dat
 
 ## Setup
 
-To initialize the project you need to run this command:
+After cloning or downloading the project, you need to start it via `docker-compose up` in the project folder.
+Next step is the project initialization:
 
 ```bash
 ./pokedex init
@@ -29,12 +30,12 @@ Run this command to see the list of available maintenance scripts:
 ./pokedex help
 ```
 
-Running all migrations against the veekun pokedex SQLite DB
+Running all migrations against the `veekun/pokedex` SQLite DB file.
 ```bash
 ./pokedex migrate
 ```
 
-Export the current state of the DB to CSV. This will save all the files under the `build/csv` folder.
+Export the current state of the DB to CSV. This will save all the files under the `dist/csv` folder.
 ```bash
 ./pokedex dump
 ```
@@ -56,7 +57,7 @@ tables for better maintainability
 ## License
 
 This software is copyrighted and licensed under the 
-[MIT license](https://github.com/metaunicorn/pokedex-data/LICENSE).
+[MIT license](https://github.com/pokettomonstaa/database/LICENSE).
 
 ### Disclaimer
 
@@ -74,4 +75,4 @@ This software is not affiliated in any way with Nintendo,
 Pokémon or any other game company.
 
 A complete revision history of this software is available from
-https://github.com/metaunicorn/pokedex-data
+https://github.com/pokettomonstaa/database

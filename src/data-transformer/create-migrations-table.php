@@ -1,15 +1,14 @@
 <?php
 
-require_once __DIR__ . '/../app.php';
+require_once __DIR__ . '/../bootstrap.php';
 
-/** @var \Doctrine\DBAL\Connection $db */
-$db = $app['db'];
-/** @var \League\CLImate\CLImate $cli */
-$cli = $app['cli'];
+/** @var \Pokettomonstaa\Database\App $app */
+$db = $app->getDb();
+$cli = $app->getCli();
 
 // Backup
-@unlink($app['db_file'] . '-backup');
-@copy($app['db_file'], $app['db_file'] . '-backup');
+@unlink($app->dbFile . '-backup');
+@copy($app->dbFile, $app->dbFile . '-backup');
 
 $migrations_table = 'db_migrations';
 
@@ -24,9 +23,8 @@ SQL;
 
 if (!$db->getSchemaManager()->tablesExist([$migrations_table])) {
     $cli->info('Creating migrations table.');
-    $app['db_exec']($migrations_create_table_sql);
+    $app->dbExecTransactional($migrations_create_table_sql);
     sleep(2);
     $db->close();
+    $cli->green('DONE.');
 }
-
-$cli->green('FINISHED.');
