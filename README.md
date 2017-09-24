@@ -22,13 +22,14 @@ and exports the Showdown data to JSON.
 The versioning or tagging of this project follows more or less the semver convention of `MAJOR.MINOR.PATCH` but
 with the format `GGR.MAJOR.MINORPATCH`, which has obviously a different meaning:
 
-- _GGR_: This version increases for each new set of games that introduce important metagame changes.
-    - _GG_: Is the part reserved to the generation identifier. It should have from 1 to 2 digits.
-    - _R_:  Identifies the generation revision (remake) version. It should have only one digit.
-    For example the version `70.0.0` would refer to `Sun` and `Moon`,
-    where `71.0.0` would refer to `Ultra Sun` and `Utra Moon`.
-- _MAJOR_: Project major version. Breaking changes that may alter the data structure, but not related to new games.
-- _MINORPATCH_: Project minor and patch version: Bug fixes and any changes that are backwards compatible with the
+- _`GGR`_: This version increases for each new set of games that introduce important metagame changes.
+    - _`GG`_: Is the part reserved to the generation identifier. It should have from 1 to 2 digits.
+    Examples: `70.0.0` (Gen 7), `71.0.0` (Gen 7.1), `102.0.0` (Gen 10.2).
+    - _`R`_:  Identifies the generation revision (remake) version. It should have only one digit.
+    For example the version `70.0.0` would refer to _Sun_ and _Moon_,
+    where `71.0.0` would refer to _Ultra Sun_ and _Utra Moon_.
+- _`MAJOR`_: Project major version. Breaking changes that may alter the data structure, but not related to new games.
+- _`MINORPATCH`_: Project minor and patch version: Bug fixes and any changes that are backwards compatible with the
 generated data.
 
 ### Differences with veekun/pokedex
