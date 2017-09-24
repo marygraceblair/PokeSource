@@ -1,10 +1,12 @@
 {
   "require": {
     "php": "^7.0",
-    "doctrine/dbal": "~2.6",
+    "doctrine/dbal": "^2.6",
     "league/csv": "^8.2",
     "league/climate": "^3.2",
-    "illuminate/support": "^5.5"
+    "illuminate/support": "^5.5",
+    "danielstjules/stringy": "^3.1",
+    "twig/twig": "^2.4"
   },
   "config": {
     "preferred-install": "dist"

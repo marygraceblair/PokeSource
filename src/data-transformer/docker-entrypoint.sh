@@ -30,11 +30,8 @@ __fn_run_migrations(){
 }
 
 __fn_dump_db(){
-    rm -rf ${DIST_PATH}/csv/*.csv
-    php src/data-transformer/export-db-csv.php
-    # Remove Conquest game data (is not main series)
-    rm -rf ${DIST_PATH}/csv/conquest*.csv
-    rm -rf ${DIST_PATH}/db/*
+    rm -rf ${DIST_PATH}/csv/* ${DIST_PATH}/db/* ${DIST_PATH}/proto/*
+    php src/data-transformer/export-db.php
     php src/data-transformer/create-db-bundle.php
 }
 

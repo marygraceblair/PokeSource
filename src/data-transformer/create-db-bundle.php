@@ -5,11 +5,7 @@ require_once __DIR__ . '/../bootstrap.php';
 /** @var \Pokettomonstaa\Database\App $app */
 $cli = $app->getCli();
 
-$export_path = $app->distPath . '/db';
-
-if (!realpath($export_path) || !is_dir($export_path)) {
-    mkdir($export_path, 0755, true);
-}
+$export_path = $app->assureDir($app->distPath . '/db');
 
 $output = '';
 

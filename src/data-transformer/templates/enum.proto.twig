@@ -1,0 +1,8 @@
+syntax = "proto3";
+package Pokemon.Enums;
+
+enum {{ enumName }} {
+{% for item in items %}
+    {{ item.name }} = {{ item.id }};
+{% endfor %}
+}

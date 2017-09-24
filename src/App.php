@@ -5,6 +5,7 @@ namespace Pokettomonstaa\Database;
 use Doctrine\DBAL;
 use League\CLImate\CLImate;
 use PDO;
+use Stringy\Stringy;
 
 class App extends \ArrayObject
 {
@@ -28,6 +29,10 @@ class App extends \ArrayObject
      * @var string
      */
     public $srcPath;
+    /**
+     * @var string
+     */
+    public $templatesPath;
     /**
      * @var string
      */
@@ -55,6 +60,8 @@ class App extends \ArrayObject
         $this->buildPath = isset($_ENV['BUILD_PATH']) ? $_ENV['BUILD_PATH'] : ($this->rootPath . '/build');
         $this->distPath = isset($_ENV['DIST_PATH']) ? $_ENV['DIST_PATH'] : ($this->rootPath . '/dist');
         $this->srcPath = isset($_ENV['SOURCE_PATH']) ? $_ENV['SOURCE_PATH'] : ($this->rootPath . '/src');
+        $this->templatesPath = isset($_ENV['TEMPLATES_PATH']) ? $_ENV['TEMPLATES_PATH'] :
+            ($this->srcPath . '/data-transformer/templates');
         $this->vendorPath = isset($_ENV['VENDOR_PATH']) ? $_ENV['VENDOR_PATH'] : ($this->rootPath . '/vendor');
         $this->dbFile = isset($_ENV['DB_FILE']) ? $_ENV['DB_FILE'] :
             ($this->vendorPath . '/veekun-pokedex/pokedex/data/pokedex.sqlite');
@@ -65,6 +72,87 @@ class App extends \ArrayObject
         $this->getDb()->close();
     }
 
+    /**
+     * Creates the directory if it does not exist
+     *
+     * @param string $dir
+     *
+     * @return string The dir argument
+     */
+    public function assureDir($dir)
+    {
+        if (empty($dir)) {
+            throw new \LogicException('$dir is empty!');
+        }
+
+        if (!file_exists($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        return $dir;
+    }
+
+    /**
+     * Renders a twig template
+     *
+     * @param string $name
+     * @param array  $vars
+     *
+     * @return string
+     */
+    public function renderTemplate($name, array $vars = [])
+    {
+        if (!$this->twig) {
+            $loader = new \Twig_Loader_Filesystem($this->templatesPath);
+            $this->twig = new \Twig_Environment($loader);
+        }
+
+        return $this->twig->render($name, $vars);
+    }
+
+    /**
+     * Generates a Protocol Buffer enum out of an SQL query
+     *
+     * @param string $enumName
+     * @param string $sql
+     * @param bool   $usePrefix
+     * @param string $nameColumn
+     * @param string $idColumn
+     *
+     * @return string The generated protobuf code
+     */
+    public function createProtoBufEnumFromQuery(
+        $enumName,
+        $sql,
+        $usePrefix = false,
+        $nameColumn = 'name',
+        $idColumn = 'id'
+    ) {
+        $records = $this->getDb()->query($sql);
+        $prefix = Stringy::create($enumName)->underscored()->toUpperCase();
+        $defaultItem = ['name' => '_DEFAULT', 'id' => 0];
+        $templateData = ['enumName' => $enumName, 'items' => [(object)$defaultItem]];
+        while ($record = $records->fetch(\PDO::FETCH_OBJ)) {
+            $name = ($usePrefix ? ($prefix . '_') : '') .
+                Stringy::create($record->{$nameColumn})->slugify('_')->toUpperCase();
+
+            if (!preg_match('/^[A-Z_]/', $name)) {
+                $name = "_" . $name; // safer enum name
+            }
+
+            if (!preg_match('/^[A-Z_]([A-Z0-9_])?.*/', $name)) {
+                throw new \RuntimeException("Cannot use '{$name}' as a ProtoBuf constant name for '{$enumName}'.");
+            }
+
+            $templateData['items'][] = (object)[
+                'id'   => $record->{$idColumn},
+                'name' => $name,
+            ];
+        }
+        $proto = $this->renderTemplate('enum.proto.twig', $templateData);
+
+        return $proto;
+    }
 
     /**
      * Executes SQL using transactions. It commits or rolls back automatically if something went wrong.
@@ -226,12 +314,12 @@ class App extends \ArrayObject
     {
         $db = $this->getDb();
 
-        $export_path = $this->distPath . '/csv';
-        if (!realpath($export_path) || !is_dir($export_path)) {
-            mkdir($export_path, 0755, true);
-        }
+        $export_path = $this->assureDir($this->distPath . '/csv');
 
         $tables = $db->getSchemaManager()->listTables();
+
+        $this->getCli()->lightBlue("Creating CSV data files...");
+
         foreach ($tables as $table) {
             $tableName = $table->getName();
 
@@ -247,7 +335,7 @@ class App extends \ArrayObject
             # @unlink($export_file);
 
             $output = '';
-            $this->getCli()->out("Exporting {$export_file}");
+            $this->getCli()->out(" > " . str_replace($this->distPath, 'dist', $export_file));
 
             if ($table->hasPrimaryKey()) {
                 $orderBy = "ORDER BY 1 ASC";
