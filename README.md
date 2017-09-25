@@ -46,13 +46,14 @@ Data differences with veekun/pokedex:
 
 - Conquest, Pal Park and Pokeathlon data is omitted in the exports, but the tables will be still in the DB.
 - Simplified tables are created for easier queries (tables starting with `zz_` like `zz_pokemon`)
+- Dropped support for data that is not durable for future generations and/or is not core title related like:
+  conquest_* contest, super_contest, pokeathlon and pal_park tables.
 
 This project alsom may use data from *Pokemon Showdown* like movesets, tiers, etc.
 
 ### Planned Changes
 - Drop support for unofficial data (non official languages, abilities, etc.).
-- Drop support for non core main-series data (Conquest, XD, Colosseum etc).
-- Drop support for mini game data (PokeAthlon, Contests and Super Contests, Pal Park, etc).
+- Drop support for non core main-series data (Conquest, XD, Colosseum etc) in some table columns and rows.
 - (Maybe) drop support for the locations and encounters data. It is only necessary to keep the information whether a Pokemon
 is obtainable or not in a game, via event, etc.
 - Import some data from Showdown (tiers, strategic movesets, etc).
@@ -60,7 +61,6 @@ is obtainable or not in a game, via event, etc.
 tables for better maintainability
 - Add support for different Pokemon stats/moves/etc depending on the Generation and/or Version Group,
 to keep track of the changes through all generations. Currently is not possible to know that.
-- Simple web app to visualize the data
 
 ## API usage
 The project comes with a builtin RESTFul API that communicates directly with the database.

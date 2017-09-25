@@ -171,7 +171,7 @@ class App extends \ArrayObject
 
             $templateData['items'][] = $record;
         }
-        $proto = $this->renderTemplate('enum.proto ', $templateData);
+        $proto = $this->renderTemplate('enum.proto', $templateData);
 
         return $proto;
     }
@@ -238,6 +238,39 @@ class App extends \ArrayObject
      */
     public function sendApiRequest($path, array $query = [])
     {
+        $query = $this->formatApiQueryParams($query);
+
+        $response = $this->getApi()->get('/api/' . ltrim($path, '/'), ['query' => $query]);
+
+        return \GuzzleHttp\json_decode($response->getBody()->__toString(), true);
+    }
+
+    /**
+     * Builds an API URL given a path and query string
+     *
+     * @param string $path
+     * @param array  $query  Query string parameters (like: include, filter, page, columns, order, satisfy, transform,
+     *                       etc.) Documentation can be found at https://github.com/mevdschee/php-crud-api
+     *
+     * @param bool   $public If true, the public API url will be returned, otherwise the internal one
+     *
+     * @return string
+     */
+    public function buildApiUrl($path, array $query = [], $public = true)
+    {
+        $query = $this->formatApiQueryParams($query);
+
+        return ($public ? $this->baseUrl : $this->apiUrl) . '/api/' . ltrim($path,
+                '/') . '?' . http_build_query($query);
+    }
+
+    /**
+     * @param array $query
+     *
+     * @return array
+     */
+    private function formatApiQueryParams(array $query)
+    {
         // Params that should be comma separated if defined as array
         foreach (['include', 'columns'] as $param) {
             if (isset($query[$param]) && is_array($query[$param])) {
@@ -245,9 +278,7 @@ class App extends \ArrayObject
             }
         }
 
-        $response = $this->getApi()->get('/api/' . ltrim($path, '/'), ['query' => $query]);
-
-        return \GuzzleHttp\json_decode($response->getBody()->__toString(), true);
+        return $query;
     }
 
     /**
@@ -386,8 +417,7 @@ class App extends \ArrayObject
 
             if (
                 in_array($tableName, ['db_migrations'])
-                # Ignore Conquest game data (is not main series) and other data specific to special gen features.
-                | preg_match('/^(conquest|pokeathlon|pal_park).*/', $tableName)
+                | preg_match('/^(sys\\/|sqlite_).*/', $tableName)
             ) {
                 continue;
             }

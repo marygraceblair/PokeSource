@@ -13,6 +13,8 @@ $migration_callables = $app->getMigrations();
 
 foreach ($migration_callables as $migration_name => $callableWithArgs) {
     list($callable, $args) = $callableWithArgs;
+    $args[] = $app;
+
     $affected_rows = $app->runMigration($migration_name, $callable, $args);
 
     if (is_numeric($affected_rows)) {
