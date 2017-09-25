@@ -16,7 +16,7 @@ BRANCH_NAME=${3:-"master"}
 mkdir -p ${DEPENDENCIES_PATH}
 cd ${DEPENDENCIES_PATH}
 
-# Clone original data source from the remote
+# Pull or clone original data source from the remote
 if [ -d "${DEPENDENCIES_PATH}/${DIR_NAME}/.git" ]; then
     cd ${DIR_NAME}
     git fetch -a

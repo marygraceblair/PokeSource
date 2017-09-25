@@ -12,7 +12,7 @@ $dependencies_path = $app->vendorPath;
 if (
     !is_dir($dependencies_path . '/veekun-pokedex/pokedex')
     || !is_dir($dependencies_path . '/pokemon-showdown/data')
-    || !is_dir($dependencies_path . '/doctrine')
+    || !is_dir($dependencies_path . '/doctrine/dbal')
 ) {
     exit(1);
 }

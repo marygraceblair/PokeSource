@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-if [ "$1" == "init" ] ; then
-    rm -f ./vendor/veekun-pokedex/pokedex/data/pokedex.sqlite
-    docker-compose run --rm veekun_pokedex setup
-    docker-compose run --rm pokemon_showdown export
-else
-    docker-compose run --rm data_transformer ${@}
-fi

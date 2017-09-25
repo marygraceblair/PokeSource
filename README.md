@@ -1,73 +1,95 @@
 # Poketto Monstaa - Data
-All data from Pokémon main series RPG games, available in CSV, Protocol Buffer and SQLite DB formats.
-
-The data source comes directly from the 
-[`veekun/pokedex`](https://github.com/veekun/pokedex) CSV files,
-which is, in the major part, generated from the ripped videogame real data.
-
-## Setup
-After cloning or downloading the project, you need to start it via `docker-compose up` in the project folder.
-Next step is the project initialization:
-
-```bash
-./pokedex init
-```
-
-The process will take a while, since it recreates the veekun SQLite DB from the original veekun CSV files
-and exports the Showdown data to JSON.
-
-## The Project
-
-### Versioning
-The versioning or tagging of this project follows more or less the semver convention of `MAJOR.MINOR.PATCH` but
-with the format `GGR.MAJOR.MINORPATCH`, which has obviously a different meaning:
-
-- _`GGR`_: This version increases for each new set of games that introduce important metagame changes.
-    - _`GG`_: Is the part reserved to the generation identifier. It should have from 1 to 2 digits.
-    Examples: `70.0.0` (Gen 7), `71.0.0` (Gen 7.1), `102.0.0` (Gen 10.2).
-    - _`R`_:  Identifies the generation revision (remake) version. It should have only one digit.
-    For example the version `70.0.0` would refer to _Sun_ and _Moon_,
-    where `71.0.0` would refer to _Ultra Sun_ and _Utra Moon_.
-- _`MAJOR`_: Project major version. Breaking changes that may alter the data structure, but not related to new games.
-- _`MINORPATCH`_: Project minor and patch version: Bug fixes and any changes that are backwards compatible with the
-generated data.
-
-### Differences with veekun/pokedex
-In this fork, a set of changes called `migrations` will be applied on top of the original project
-in order to fix, simplify, standardise, optimize and complement the original database.
-
-- Conquest, Pal Park and Pokeathlon data is omitted in the exports, but the tables will be still in the DB.
-- Simplified tables are created for easier queries (tables starting with `zz_` like `zz_pokemon`)
-
-### Roadmap and ideas
-- Drop support for unofficial data (non official languages, abilities, etc.).
-- Drop support for non core main-series data (Conquest, XD, Colosseum etc).
-- Drop support for mini game data (PokeAthlon, Contests and Super Contests, Pal Park, etc).
-- Add information from Showdown (tiers, strategies, etc).
-- Simplify pokemon, pokemon_species, pokemon_forms, pokemon_types, pokemon_abilities and pokemon_egg_group
-tables for better maintainability
-- Add support for different Pokemon stats/moves/etc depending on the Generation and/or Version Group,
-to keep track of the changes through all generations. Currently is not possible to know that.
+Pokémon API with all data from the main RPG series RPG, also available in CSV, Protocol Buffer and SQLite DB formats.
 
 ## Requirements
 The main requirement for compiling de `dist` folder is to have Docker installed in your machine,
 otherwise you would have to install PHP, Python, Node and other required libraries by your own.
 
+## Setup
+After cloning or downloading the project, you need to install some prerequisites via:
+```bash
+./app setup
+```
+
+The process will take a while, since it recreates the veekun SQLite DB from the original veekun CSV files,
+exports the Showdown data to JSON and runs the migration files to make the DB ready.
+
+Afterwards you can start, optionally the API:
+```bash
+./app start
+```
+
+## The Project
+
+### Versioning
+The versioning or tagging of this project follows more or less the semver convention of 3 numbers, but
+with the format `GENERATION.REMAKE.RELEASE`, which has obviously a different meaning:
+
+- _`GENERATION`_: This version increases for each new generation that introduces important metagame changes.
+- _`REMAKE`_: Generation remake or revision version. Usually remakes introduce slightly new changes and additions
+to the current generation like new forms, new moves, items, etc.
+- _`RELEASE`_: This is the version of the project itself. Breaking changes will increment this number by 100, while other
+non breaking changes, new features and bug fixes will increment the number by 10 or 1 respectively.
+For each new Generation or Revision versions this number will be reset to zero.
+
+For example, for *Ultra Sun and Ultra Moon*, the tags will start with `7.1.0`.
+
+### Data Source
+The data source comes directly from the 
+[`veekun/pokedex`](https://github.com/veekun/pokedex) CSV files,
+which is, in the major part, generated from the ripped videogame real data.
+
+In this fork, a set of changes called `migrations` will be applied on top of the original project
+in order to fix, simplify, standardise, optimize and complement the original database.
+
+Data differences with veekun/pokedex:
+
+- Conquest, Pal Park and Pokeathlon data is omitted in the exports, but the tables will be still in the DB.
+- Simplified tables are created for easier queries (tables starting with `zz_` like `zz_pokemon`)
+
+This project alsom may use data from *Pokemon Showdown* like movesets, tiers, etc.
+
+### Planned Changes
+- Drop support for unofficial data (non official languages, abilities, etc.).
+- Drop support for non core main-series data (Conquest, XD, Colosseum etc).
+- Drop support for mini game data (PokeAthlon, Contests and Super Contests, Pal Park, etc).
+- (Maybe) drop support for the locations and encounters data. It is only necessary to keep the information whether a Pokemon
+is obtainable or not in a game, via event, etc.
+- Import some data from Showdown (tiers, strategic movesets, etc).
+- Simplify pokemon, pokemon_species, pokemon_forms, pokemon_types, pokemon_abilities and pokemon_egg_group
+tables for better maintainability
+- Add support for different Pokemon stats/moves/etc depending on the Generation and/or Version Group,
+to keep track of the changes through all generations. Currently is not possible to know that.
+- Simple web app to visualize the data
+
+## API usage
+The project comes with a builtin API that communicates directly with the database.
+For learning how to use it, check the [PHP-CRUD-API](https://github.com/mevdschee/php-crud-api#usage) project.
+
+For starting the API (if is not yet started), you should run:
+
+```bash
+./app start
+```
+
+Then you can access it navigating to [http://localhost:8151](http://localhost:8151).
+
 ## Maintenance
 
 Run this command to see the list of available maintenance scripts:
 ```bash
-./pokedex help
+./app help
 ```
 
-Running all migrations against the `veekun/pokedex` SQLite DB file.
+Running all migrations against a copy of the `veekun/pokedex` SQLite DB file,
+which would be inside the `bundle` directory:
 ```bash
-./pokedex migrate
+./app migrate
 ```
 
 Export the current state of the DB into the various formats:
 ```bash
-./pokedex dump
+./app dump
 ```
 This will save all the files under the `dist` folder, using various tools like `csvkit`, `twig`, etc.
 

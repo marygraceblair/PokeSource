@@ -61,10 +61,10 @@ class App extends \ArrayObject
         $this->distPath = isset($_ENV['DIST_PATH']) ? $_ENV['DIST_PATH'] : ($this->rootPath . '/dist');
         $this->srcPath = isset($_ENV['SOURCE_PATH']) ? $_ENV['SOURCE_PATH'] : ($this->rootPath . '/src');
         $this->templatesPath = isset($_ENV['TEMPLATES_PATH']) ? $_ENV['TEMPLATES_PATH'] :
-            ($this->srcPath . '/data-transformer/templates');
+            ($this->srcPath . '/data/templates');
         $this->vendorPath = isset($_ENV['VENDOR_PATH']) ? $_ENV['VENDOR_PATH'] : ($this->rootPath . '/vendor');
         $this->dbFile = isset($_ENV['DB_FILE']) ? $_ENV['DB_FILE'] :
-            ($this->vendorPath . '/veekun-pokedex/pokedex/data/pokedex.sqlite');
+            ($this->buildPath . '/pokedex.sqlite');
     }
 
     public function __destruct()
@@ -95,7 +95,7 @@ class App extends \ArrayObject
     /**
      * Renders a twig template
      *
-     * @param string $name
+     * @param string $name Template name, without the .twig suffix/extension
      * @param array  $vars
      *
      * @return string
@@ -107,7 +107,7 @@ class App extends \ArrayObject
             $this->twig = new \Twig_Environment($loader);
         }
 
-        return $this->twig->render($name, $vars);
+        return $this->twig->render($name . '.twig', $vars);
     }
 
     /**
@@ -132,24 +132,30 @@ class App extends \ArrayObject
         $prefix = Stringy::create($enumName)->underscored()->toUpperCase();
         $defaultItem = ['name' => '_DEFAULT', 'id' => 0];
         $templateData = ['enumName' => $enumName, 'items' => [(object)$defaultItem]];
+
         while ($record = $records->fetch(\PDO::FETCH_OBJ)) {
-            $name = ($usePrefix ? ($prefix . '_') : '') .
-                Stringy::create($record->{$nameColumn})->slugify('_')->toUpperCase();
+            $id = null;
+            $name = null;
 
-            if (!preg_match('/^[A-Z_]/', $name)) {
-                $name = "_" . $name; // safer enum name
+            if ($nameColumn) {
+                $name = ($usePrefix ? ($prefix . '_') : '') .
+                    Stringy::create($record->{$nameColumn})->slugify('_')->toUpperCase();
+
+                if (!preg_match('/^[A-Z_]/', $name)) {
+                    $name = "_" . $name; // safer enum name
+                }
+
+                if (!preg_match('/^[A-Z_]([A-Z0-9_])?.*/', $name)) {
+                    throw new \RuntimeException("Cannot use '{$name}' as a ProtoBuf constant name for '{$enumName}'.");
+                }
             }
 
-            if (!preg_match('/^[A-Z_]([A-Z0-9_])?.*/', $name)) {
-                throw new \RuntimeException("Cannot use '{$name}' as a ProtoBuf constant name for '{$enumName}'.");
-            }
+            $record->id = $idColumn ? $record->{$idColumn} : null;
+            $record->name = $name;
 
-            $templateData['items'][] = (object)[
-                'id'   => $record->{$idColumn},
-                'name' => $name,
-            ];
+            $templateData['items'][] = $record;
         }
-        $proto = $this->renderTemplate('enum.proto.twig', $templateData);
+        $proto = $this->renderTemplate('enum.proto ', $templateData);
 
         return $proto;
     }
@@ -275,7 +281,7 @@ class App extends \ArrayObject
             return $this->dbExecTransactional($sql);
         };
 
-        $migrations_path = $this->srcPath . '/data-transformer/migrations';
+        $migrations_path = $this->srcPath . '/data/migrations';
 
         $dir_iterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($migrations_path, \RecursiveDirectoryIterator::SKIP_DOTS)

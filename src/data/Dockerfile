@@ -18,6 +18,14 @@ RUN echo "Upgrading distro..." && \
     pip install --upgrade setuptools && \
     pip install --upgrade csvkit && \
 
+    echo "Installing PHP extensions required by composer..." && \
+    docker-php-ext-install -j$(nproc) zip > /dev/null && \
+
+    echo "Installing Composer..." && \
+    curl -o composer-setup.php https://getcomposer.org/installer > /dev/null && \
+    php composer-setup.php --install-dir=/usr/local/bin --filename=composer > /dev/null && \
+    rm composer-setup.php && \
+
     echo "Optimizing space..." && \
     apt-get remove --purge -y software-properties-common > /dev/null && \
     apt-get autoremove -y > /dev/null && \
@@ -32,4 +40,4 @@ COPY ./docker-entrypoint.sh /docker-entrypoint
 RUN chmod +x /docker-entrypoint
 
 ENTRYPOINT ["/docker-entrypoint"]
-CMD ["help"]
+CMD ["start"]

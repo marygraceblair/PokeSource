@@ -7,6 +7,10 @@ if [ -z "${PROJECT_PATH}" ]; then
 fi
 cd ${PROJECT_PATH}
 
+if [ ! -d "${PROJECT_PATH}/vendor/pokemon-showdown/data" ] ; then
+    ./src/git-require.sh Zarel/Pokemon-Showdown pokemon-showdown master
+fi
+
 __fn_show_help() {
     echo "--------------------"
     echo "## pokemon-showdown ##"

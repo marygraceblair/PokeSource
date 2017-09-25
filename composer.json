@@ -6,7 +6,8 @@
     "league/climate": "^3.2",
     "illuminate/support": "^5.5",
     "danielstjules/stringy": "^3.1",
-    "twig/twig": "^2.4"
+    "twig/twig": "^2.4",
+    "mevdschee/php-crud-api": "^1.2.7"
   },
   "config": {
     "preferred-install": "dist"

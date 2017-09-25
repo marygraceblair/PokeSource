@@ -1,34 +1,24 @@
 version: '2.1'
 services:
-  setup:
-    build: ./src/setup/
+  data:
+    build: ./src/data/
     environment:
+      APP_PUBLIC_PATH: "/project/src/data/api/"
       PROJECT_PATH: "/project"
       BUILD_PATH: "/project/build"
       DIST_PATH: "/project/dist"
+      DB_FILE: "/project/build/pokedex.sqlite"
+      APP_HOST: "0.0.0.0"
+      APP_PORT: "8151"
+    ports:
+      - "8151:8151"
     volumes:
       - ./:/project
     healthcheck:
-      test: ["CMD", "php", "/project/src/setup/healthcheck.php"]
-      interval: 1m30s
-      timeout: 15s
+      test: ["CMD", "curl", "--fail http://localhost:8151/ || exit 1"]
+      interval: 15s
+      timeout: 5s
       retries: 3
-  data_transformer:
-    build: ./src/data-transformer/
-    environment:
-      PROJECT_PATH: "/project"
-      BUILD_PATH: "/project/build"
-      DIST_PATH: "/project/dist"
-      DB_FILE: "/project/vendor/veekun-pokedex/pokedex/data/pokedex.sqlite"
-    volumes:
-      - ./:/project
-    depends_on:
-      setup:
-        condition: service_healthy
-      pokemon_showdown:
-        condition: service_started
-      veekun_pokedex:
-        condition: service_started
   pokemon_showdown:
     build: ./src/pokemon-showdown/
     environment:
@@ -37,15 +27,10 @@ services:
       SOURCES_PATH: "/project/vendor/pokemon-showdown"
     volumes:
       - ./:/project
-    depends_on:
-      setup:
-        condition: service_healthy
   veekun_pokedex:
     build: ./src/veekun-pokedex/
     environment:
+      PROJECT_PATH: "/project"
       SOURCES_PATH: "/project/vendor/veekun-pokedex"
     volumes:
       - ./:/project
-    depends_on:
-      setup:
-        condition: service_healthy
