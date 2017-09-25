@@ -63,8 +63,11 @@ to keep track of the changes through all generations. Currently is not possible 
 - Simple web app to visualize the data
 
 ## API usage
-The project comes with a builtin API that communicates directly with the database.
+The project comes with a builtin RESTFul API that communicates directly with the database.
 For learning how to use it, check the [PHP-CRUD-API](https://github.com/mevdschee/php-crud-api#usage) project.
+You will realize how versatile it is and the endless possibilities it has.
+
+It is ideal for prototyping your projects, without thinking too much in designing your own database or API.
 
 For starting the API (if is not yet started), you should run:
 
@@ -72,7 +75,19 @@ For starting the API (if is not yet started), you should run:
 ./app start
 ```
 
-Then you can access it navigating to [http://localhost:8151](http://localhost:8151).
+Then you can access it navigating to [http://0.0.0.0:8151](http://0.0.0.0:8151).
+
+### Useful requests:
+With these examples, you will get an idea about the endless different possibilities the API has:
+
+- [Pokemon](http://0.0.0.0:8151/pokemon_species?include=pokemon,pokemon_types,pokemon_stats,pokemon_abilities,pokemon_forms&transform=1): List all Pokemon including their forms, aesthetic variants, types, abilities and stats.
+
+- [Moves](http://0.0.0.0:8151/moves?include=move_meta,move_flag_map&transform=1): List all Moves including all their metadata and flags.
+
+- [Pokemon Moves](http://0.0.0.0:8151/pokemon_moves?filter[]=pokemon_id,eq,151&filter[]=version_group_id,eq,17&include=moves&order[]=pokemon_move_method_id&order[]=level&page=1,1000&transform=1): This example lists all the moves
+that Mew learns in Sun and Moon.
+
+
 
 ## Maintenance
 

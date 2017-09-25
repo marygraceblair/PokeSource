@@ -14,11 +14,6 @@ services:
       - "8151:8151"
     volumes:
       - ./:/project
-    healthcheck:
-      test: ["CMD", "curl", "--fail http://localhost:8151/ || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
   pokemon_showdown:
     build: ./src/pokemon-showdown/
     environment:
