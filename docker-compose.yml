@@ -1,29 +1,39 @@
 version: '2.1'
 services:
-  data:
-    build: ./src/data/
+  nginx:
+    image: nginx:1.13
+    depends_on:
+      - phpfpm
     environment:
-      APP_PUBLIC_PATH: "/project/src/data/api/"
+      NGINX_PORT: "80"
+    ports:
+      - "8151:80"
+    volumes:
+      - ./:/project
+      - .vendor/pokesprite/:/project/src/web/public/assets/pokesprite
+      - ./src/web/web.conf:/etc/nginx/conf.d/default.conf
+  phpfpm:
+    build: ./src/web/
+    environment:
+      INTERNAL_API_HOST: "nginx:80"
+      API_HOST: "localhost:8151"
       PROJECT_PATH: "/project"
       BUILD_PATH: "/project/build"
       DIST_PATH: "/project/dist"
       DB_FILE: "/project/build/pokedex.sqlite"
-      APP_HOST: "0.0.0.0"
-      APP_PORT: "8151"
-    ports:
-      - "8151:8151"
     volumes:
       - ./:/project
-  pokemon_showdown:
-    build: ./src/pokemon-showdown/
+      - .vendor/pokesprite/:/project/src/web/public/assets/pokesprite
+  importer_showdown:
+    build: ./src/importers/showdown/
     environment:
       PROJECT_PATH: "/project"
       BUILD_PATH: "/project/build"
       SOURCES_PATH: "/project/vendor/pokemon-showdown"
     volumes:
       - ./:/project
-  veekun_pokedex:
-    build: ./src/veekun-pokedex/
+  importer_veekun:
+    build: ./src/importers/veekun/
     environment:
       PROJECT_PATH: "/project"
       SOURCES_PATH: "/project/vendor/veekun-pokedex"

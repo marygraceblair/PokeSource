@@ -3,6 +3,7 @@
 namespace Pokettomonstaa\Database;
 
 use Doctrine\DBAL;
+use GuzzleHttp\Client;
 use League\CLImate\CLImate;
 use PDO;
 use Stringy\Stringy;
@@ -13,6 +14,10 @@ class App extends \ArrayObject
      * @var array
      */
     public $settings = [];
+    /**
+     * @var string
+     */
+    public $apiUrl;
     /**
      * @var string
      */
@@ -56,15 +61,16 @@ class App extends \ArrayObject
 
     public function __construct()
     {
+        $apiHost = isset($_ENV['INTERNAL_API_HOST']) ? $_ENV['INTERNAL_API_HOST'] : $_SERVER['HTTP_HOST'];
+        $this->apiUrl = "http://{$apiHost}";
         $this->rootPath = isset($_ENV['PROJECT_PATH']) ? $_ENV['PROJECT_PATH'] : realpath(__DIR__ . '/../');
         $this->buildPath = isset($_ENV['BUILD_PATH']) ? $_ENV['BUILD_PATH'] : ($this->rootPath . '/build');
         $this->distPath = isset($_ENV['DIST_PATH']) ? $_ENV['DIST_PATH'] : ($this->rootPath . '/dist');
         $this->srcPath = isset($_ENV['SOURCE_PATH']) ? $_ENV['SOURCE_PATH'] : ($this->rootPath . '/src');
-        $this->templatesPath = isset($_ENV['TEMPLATES_PATH']) ? $_ENV['TEMPLATES_PATH'] :
-            ($this->srcPath . '/data/templates');
-        $this->vendorPath = isset($_ENV['VENDOR_PATH']) ? $_ENV['VENDOR_PATH'] : ($this->rootPath . '/vendor');
-        $this->dbFile = isset($_ENV['DB_FILE']) ? $_ENV['DB_FILE'] :
-            ($this->buildPath . '/pokedex.sqlite');
+        $this->dbFile = isset($_ENV['DB_FILE']) ? $_ENV['DB_FILE'] : ($this->buildPath . '/pokedex.sqlite');
+        $this->vendorPath = $this->rootPath . '/vendor';
+        $this->templatesPath = $this->srcPath . '/templates';
+        $this->migrationsPath = $this->srcPath . '/migrations';
     }
 
     public function __destruct()
@@ -196,6 +202,45 @@ class App extends \ArrayObject
     }
 
     /**
+     * @return Client
+     */
+    public function getApi()
+    {
+        if (!$this->api) {
+            $this->api = new Client([
+                // Base URI is used with relative requests
+                'base_uri' => $this->apiUrl,
+                'timeout'  => 15.0,
+            ]);
+        }
+
+        return $this->api;
+    }
+
+    /**
+     * Sends a GET request to the data API and returns the decoded response
+     *
+     * @param string $path
+     * @param array  $query Query string parameters (like: include, filter, page, columns, order, satisfy, transform,
+     *                      etc.) Documentation can be found at https://github.com/mevdschee/php-crud-api
+     *
+     * @return array The decoded JSON response if successful
+     */
+    public function sendApiRequest($path, array $query = [])
+    {
+        // Params that should be comma separated if defined as array
+        foreach (['include', 'columns'] as $param) {
+            if (isset($query[$param]) && is_array($query[$param])) {
+                $query[$param] = implode(',', $query[$param]);
+            }
+        }
+
+        $response = $this->getApi()->get('/api/' . ltrim($path, '/'), ['query' => $query]);
+
+        return \GuzzleHttp\json_decode($response->getBody()->__toString(), true);
+    }
+
+    /**
      * @return CLImate
      */
     public function getCli()
@@ -281,7 +326,7 @@ class App extends \ArrayObject
             return $this->dbExecTransactional($sql);
         };
 
-        $migrations_path = $this->srcPath . '/data/migrations';
+        $migrations_path = $this->migrationsPath;
 
         $dir_iterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($migrations_path, \RecursiveDirectoryIterator::SKIP_DOTS)

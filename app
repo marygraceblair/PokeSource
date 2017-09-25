@@ -1,22 +1,21 @@
 #!/usr/bin/env bash
 
-if [ "$1" == "setup" ] ; then
-    rm -rf ./vendor/veekun-pokedex/pokedex/data/pokedex.sqlite ./build
-    mkdir -p ./build
-    docker-compose run --rm veekun_pokedex setup
-    docker-compose run --rm pokemon_showdown export
-    cp ./vendor/veekun-pokedex/pokedex/data/pokedex.sqlite ./build/pokedex.sqlite
-    docker-compose run --rm data migrate
+# Run setup if the .sqlite DB is not found
+if [ "$1" == "setup" ] || [ ! -f "./build/pokedex.sqlite" ] ; then
+    docker-compose run --rm importer_showdown import
+    docker-compose run --rm importer_veekun import
+    docker-compose run --rm phpfpm migrate
     exit
 fi
 
+# Starts the API server
 if [ "$1" == "start" ] || [ "$1" == "serve" ] ; then
-    docker-compose up data
+    docker-compose up nginx
     exit
 fi
 
 if [ "$1" == "ssh" ] ; then
-    docker-compose run --rm data /bin/bash
+    docker-compose run --rm phpfpm /bin/bash
 else
-    docker-compose run --rm data ${@}
+    docker-compose run --rm phpfpm ${@}
 fi

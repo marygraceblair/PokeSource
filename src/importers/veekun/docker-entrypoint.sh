@@ -22,8 +22,18 @@ if [ ! -f "${SOURCES_PATH}/bin/python" ] || [ ! -f "${SOURCES_PATH}/bin/veekun-p
     bin/python setup.py develop
 fi
 
+__fn_import() {
+    rm -rf ${SOURCES_PATH}/pokedex/data/pokedex.sqlite ${PROJECT_PATH}/build/*.sqlite
+    mkdir -p ${PROJECT_PATH}/build
+    bin/pokedex setup
+    cp ${SOURCES_PATH}/pokedex/data/pokedex.sqlite ${PROJECT_PATH}/build/pokedex.sqlite
+    exit
+}
+
 case "$1" in
    "") bin/pokedex help
+   ;;
+   "import") __fn_import
    ;;
    "exec") exec ${@:2}
    ;;

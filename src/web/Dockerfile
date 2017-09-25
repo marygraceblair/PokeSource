@@ -1,4 +1,4 @@
-FROM php:7.1-cli
+FROM php:7.1-fpm
 
 ENV LANG C.UTF-8
 
@@ -39,5 +39,7 @@ RUN echo "Upgrading distro..." && \
 COPY ./docker-entrypoint.sh /docker-entrypoint
 RUN chmod +x /docker-entrypoint
 
+EXPOSE 9000
+
 ENTRYPOINT ["/docker-entrypoint"]
-CMD ["start"]
+CMD ["php-fpm"]

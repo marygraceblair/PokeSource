@@ -22,12 +22,18 @@ __fn_show_help() {
     echo "--------------------"
 }
 
+__fn_import() {
+    rm -rf ${PROJECT_PATH}/build/pokemon-showdown
+    ./src/pokemon-showdown/data2json.sh ${@:2}
+    exit
+}
+
 case "$1" in
    "") __fn_show_help
    ;;
    "help") __fn_show_help
    ;;
-   "export") ./src/pokemon-showdown/data2json.sh ${@:2}
+   "import") __fn_import
    ;;
    *) exec ${@}
    ;;

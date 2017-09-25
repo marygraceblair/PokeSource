@@ -3,10 +3,6 @@
 require_once __DIR__ . '/../bootstrap.php';
 
 /** @var \Pokettomonstaa\Database\App $app */
-$db = $app->getDb();
-
-// Export CSV files
-$app->exportDbToCsv();
 
 // Create Protocol Buffer files
 $proto_path = $app->assureDir($app->distPath . '/proto/Pokemon/Enums');
@@ -44,4 +40,4 @@ $app->getCli()->green("DONE!");
 
 
 // Stop locking DB file
-$db->close();
+$app->getDb()->close();

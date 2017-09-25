@@ -75,16 +75,16 @@ For starting the API (if is not yet started), you should run:
 ./app start
 ```
 
-Then you can access it navigating to [http://0.0.0.0:8151](http://0.0.0.0:8151).
+Then you can access it navigating to [http://localhost:8151/api](http://localhost:8151/api).
 
 ### Useful requests:
 With these examples, you will get an idea about the endless different possibilities the API has:
 
-- [Pokemon](http://0.0.0.0:8151/pokemon_species?include=pokemon,pokemon_types,pokemon_stats,pokemon_abilities,pokemon_forms&transform=1): List all Pokemon including their forms, aesthetic variants, types, abilities and stats.
+- [Pokemon](http://localhost:8151/api/pokemon_species?include=pokemon,pokemon_types,pokemon_stats,pokemon_abilities,pokemon_forms&transform=1): List all Pokemon including their forms, aesthetic variants, types, abilities and stats.
 
-- [Moves](http://0.0.0.0:8151/moves?include=move_meta,move_flag_map&transform=1): List all Moves including all their metadata and flags.
+- [Moves](http://localhost:8151/api/moves?include=move_meta,move_flag_map&transform=1): List all Moves including all their metadata and flags.
 
-- [Pokemon Moves](http://0.0.0.0:8151/pokemon_moves?filter[]=pokemon_id,eq,151&filter[]=version_group_id,eq,17&include=moves&order[]=pokemon_move_method_id&order[]=level&page=1,1000&transform=1): This example lists all the moves
+- [Pokemon Moves](http://localhost:8151/api/pokemon_moves?filter[]=pokemon_id,eq,151&filter[]=version_group_id,eq,17&include=moves&order[]=pokemon_move_method_id&order[]=level&page=1,1000&transform=1): This example lists all the moves
 that Mew learns in Sun and Moon.
 
 
@@ -104,7 +104,7 @@ which would be inside the `bundle` directory:
 
 Export the current state of the DB into the various formats:
 ```bash
-./app dump
+./app export
 ```
 This will save all the files under the `dist` folder, using various tools like `csvkit`, `twig`, etc.
 
