@@ -75,7 +75,11 @@ For starting the API (if is not yet started), you should run:
 ./app start
 ```
 
-Then you can access it navigating to [http://localhost:8151/api](http://localhost:8151/api).
+Then you can access the API at [http://localhost:8151/api](http://localhost:8151/api).
+If you go to the home page [http://localhost:8151](http://localhost:8151) you will see the list of Pokémon and their
+forms.
+
+> Note that some sprites are missing or have different names. That will be fixed in next releases.
 
 ### Useful requests:
 With these examples, you will get an idea about the endless different possibilities the API has:
