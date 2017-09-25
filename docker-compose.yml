@@ -10,7 +10,6 @@ services:
       - "8151:80"
     volumes:
       - ./:/project
-      - .vendor/pokesprite/:/project/src/web/public/assets/pokesprite
       - ./src/web/web.conf:/etc/nginx/conf.d/default.conf
   phpfpm:
     build: ./src/web/
@@ -23,7 +22,6 @@ services:
       DB_FILE: "/project/build/pokedex.sqlite"
     volumes:
       - ./:/project
-      - .vendor/pokesprite/:/project/src/web/public/assets/pokesprite
   importer_showdown:
     build: ./src/importers/showdown/
     environment:

@@ -15,9 +15,13 @@ class App extends \ArrayObject
      */
     public $settings = [];
     /**
-     * @var string
+     * @var string Internal API URL
      */
     public $apiUrl;
+    /**
+     * @var string
+     */
+    public $baseUrl;
     /**
      * @var string
      */
@@ -38,6 +42,10 @@ class App extends \ArrayObject
      * @var string
      */
     public $templatesPath;
+    /**
+     * @var string
+     */
+    public $publicPath;
     /**
      * @var string
      */
@@ -63,11 +71,13 @@ class App extends \ArrayObject
     {
         $apiHost = isset($_ENV['INTERNAL_API_HOST']) ? $_ENV['INTERNAL_API_HOST'] : $_SERVER['HTTP_HOST'];
         $this->apiUrl = "http://{$apiHost}";
+        $this->baseUrl = "http://{$_SERVER['HTTP_HOST']}";
         $this->rootPath = isset($_ENV['PROJECT_PATH']) ? $_ENV['PROJECT_PATH'] : realpath(__DIR__ . '/../');
         $this->buildPath = isset($_ENV['BUILD_PATH']) ? $_ENV['BUILD_PATH'] : ($this->rootPath . '/build');
         $this->distPath = isset($_ENV['DIST_PATH']) ? $_ENV['DIST_PATH'] : ($this->rootPath . '/dist');
         $this->srcPath = isset($_ENV['SOURCE_PATH']) ? $_ENV['SOURCE_PATH'] : ($this->rootPath . '/src');
         $this->dbFile = isset($_ENV['DB_FILE']) ? $_ENV['DB_FILE'] : ($this->buildPath . '/pokedex.sqlite');
+        $this->publicPath = $this->srcPath . '/web/public';
         $this->vendorPath = $this->rootPath . '/vendor';
         $this->templatesPath = $this->srcPath . '/templates';
         $this->migrationsPath = $this->srcPath . '/migrations';

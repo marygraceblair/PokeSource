@@ -19,9 +19,11 @@ if [ ! -d "${PROJECT_PATH}/vendor/doctrine/dbal" ] ; then
     composer install
 fi
 
-# Include other projects, that only need cloning and no container:
-if [ ! -d "${PROJECT_PATH}/vendor/pokesprite" ] ; then
+# Import pokesprite icons
+if [ ! -d "${PROJECT_PATH}/src/web/public/assets/pokesprite/icons/pokemon" ] ; then
     ./src/git-require.sh msikma/pokesprite pokesprite master
+    mkdir -p ${PROJECT_PATH}/src/web/public/assets/pokesprite
+    cp -r ${PROJECT_PATH}/vendor/pokesprite/icons ${PROJECT_PATH}/src/web/public/assets/pokesprite
 fi
 
 __fn_show_help() {

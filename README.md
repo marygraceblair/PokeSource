@@ -88,8 +88,14 @@ With these examples, you will get an idea about the endless different possibilit
 that Mew learns in Sun and Moon.
 
 
-
 ## Maintenance
+
+Note that API responses are cached for 1h under the `build/cache/nginx` folder. In order to clear the cache you need to
+run this command:
+
+```bash
+./app clearcache
+```
 
 Run this command to see the list of available maintenance scripts:
 ```bash
