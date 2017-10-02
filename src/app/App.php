@@ -1,6 +1,6 @@
 <?php
 
-namespace Pokettomonstaa\Database;
+namespace Pokettomonstaa\App;
 
 use Doctrine\DBAL;
 use GuzzleHttp\Client;
@@ -8,7 +8,7 @@ use League\CLImate\CLImate;
 use PDO;
 use Stringy\Stringy;
 
-class App extends \ArrayObject
+class App
 {
     /**
      * @var array
@@ -74,6 +74,10 @@ class App extends \ArrayObject
      * @var Client
      */
     private $api;
+    /**
+     * @var Repo
+     */
+    private $repo;
 
     public function __construct()
     {
@@ -236,6 +240,18 @@ class App extends \ArrayObject
         }
 
         return $this->api;
+    }
+
+    /**
+     * @return Repo
+     */
+    public function getRepo()
+    {
+        if (!$this->repo) {
+            $this->repo = new Repo($this);
+        }
+
+        return $this->repo;
     }
 
     /**

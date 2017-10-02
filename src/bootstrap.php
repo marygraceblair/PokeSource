@@ -2,6 +2,6 @@
 
 include_once __DIR__ . '/../vendor/autoload.php';
 
-$app = new \Pokettomonstaa\Database\App();
+$app = new \Pokettomonstaa\App\App();
 return $app;
 

@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../bootstrap.php';
 
-/** @var \Pokettomonstaa\Database\App $app */
+/** @var \Pokettomonstaa\App\App $app */
 $cli = $app->getCli();
 
 $options = [

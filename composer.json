@@ -5,6 +5,7 @@
     "league/csv": "^8.2",
     "league/climate": "^3.2",
     "illuminate/support": "^5.5",
+    "illuminate/contracts": "^5.5",
     "danielstjules/stringy": "^3.1",
     "twig/twig": "^2.4",
     "mevdschee/php-crud-api": "^1.2.7",
@@ -15,7 +16,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Pokettomonstaa\\Database\\": "src/"
+      "Pokettomonstaa\\App\\": "src/app/"
     }
   },
   "minimum-stability": "dev",

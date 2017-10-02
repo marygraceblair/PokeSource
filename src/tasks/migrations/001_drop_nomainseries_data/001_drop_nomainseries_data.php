@@ -1,8 +1,6 @@
 <?php
 
-use Pokettomonstaa\Database\App;
-
-return function (App $app) {
+return function (\Pokettomonstaa\App\App $app) {
     $db = $app->getDb();
     $tables = $db->getSchemaManager()->listTables();
 

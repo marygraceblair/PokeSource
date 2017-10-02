@@ -1,6 +1,6 @@
 <?php
 
-/** @var \Pokettomonstaa\Database\App $app */
+/** @var \Pokettomonstaa\App\App $app */
 $app = $this;
 $db = $app->getDb();
 
