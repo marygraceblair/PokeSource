@@ -41,7 +41,7 @@ class App extends \ArrayObject
     /**
      * @var string
      */
-    public $templatesPath;
+    public $viewsPath;
     /**
      * @var string
      */
@@ -59,6 +59,10 @@ class App extends \ArrayObject
      */
     public $migrationsTable = 'db_migrations';
     /**
+     * @var string
+     */
+    public $migrationsPath;
+    /**
      * @var DBAL\Connection
      */
     private $db;
@@ -66,21 +70,28 @@ class App extends \ArrayObject
      * @var CLImate
      */
     private $cli;
+    /**
+     * @var Client
+     */
+    private $api;
 
     public function __construct()
     {
-        $apiHost = isset($_ENV['INTERNAL_API_HOST']) ? $_ENV['INTERNAL_API_HOST'] : $_SERVER['HTTP_HOST'];
-        $this->apiUrl = "http://{$apiHost}";
-        $this->baseUrl = "http://{$_SERVER['HTTP_HOST']}";
-        $this->rootPath = isset($_ENV['PROJECT_PATH']) ? $_ENV['PROJECT_PATH'] : realpath(__DIR__ . '/../');
-        $this->buildPath = isset($_ENV['BUILD_PATH']) ? $_ENV['BUILD_PATH'] : ($this->rootPath . '/build');
-        $this->distPath = isset($_ENV['DIST_PATH']) ? $_ENV['DIST_PATH'] : ($this->rootPath . '/dist');
-        $this->srcPath = isset($_ENV['SOURCE_PATH']) ? $_ENV['SOURCE_PATH'] : ($this->rootPath . '/src');
-        $this->dbFile = isset($_ENV['DB_FILE']) ? $_ENV['DB_FILE'] : ($this->buildPath . '/pokedex.sqlite');
+        $srv = collect($_SERVER);
+        $requestHost = isset($srv['API_HOST']) ? $srv['API_HOST'] :
+            (isset($srv['HTTP_HOST']) ? $srv['HTTP_HOST'] : 'localhost:8151');
+        $internalApiHost = isset($srv['INTERNAL_API_HOST']) ? $srv['INTERNAL_API_HOST'] : $requestHost;
+        $this->apiUrl = "http://{$internalApiHost}";
+        $this->baseUrl = "http://{$requestHost}";
+        $this->rootPath = isset($srv['PROJECT_PATH']) ? $srv['PROJECT_PATH'] : realpath(__DIR__ . '/../');
+        $this->buildPath = isset($srv['BUILD_PATH']) ? $srv['BUILD_PATH'] : ($this->rootPath . '/build');
+        $this->distPath = isset($srv['DIST_PATH']) ? $srv['DIST_PATH'] : ($this->rootPath . '/dist');
+        $this->srcPath = isset($srv['SOURCE_PATH']) ? $srv['SOURCE_PATH'] : ($this->rootPath . '/src');
+        $this->dbFile = isset($srv['DB_FILE']) ? $srv['DB_FILE'] : ($this->buildPath . '/pokedex.sqlite');
         $this->publicPath = $this->srcPath . '/web/public';
         $this->vendorPath = $this->rootPath . '/vendor';
-        $this->templatesPath = $this->srcPath . '/templates';
-        $this->migrationsPath = $this->srcPath . '/migrations';
+        $this->viewsPath = $this->srcPath . '/resources/views';
+        $this->migrationsPath = $this->srcPath . '/tasks/migrations';
     }
 
     public function __destruct()
@@ -119,7 +130,7 @@ class App extends \ArrayObject
     public function renderTemplate($name, array $vars = [])
     {
         if (!$this->twig) {
-            $loader = new \Twig_Loader_Filesystem($this->templatesPath);
+            $loader = new \Twig_Loader_Filesystem($this->viewsPath);
             $this->twig = new \Twig_Environment($loader);
         }
 
@@ -400,6 +411,48 @@ class App extends \ArrayObject
         ksort($migration_callables, SORT_ASC);
 
         return $migration_callables;
+    }
+
+    /**
+     * Executes a PHP script file
+     *
+     * @param string $file
+     *
+     * @return mixed The PHP script return value
+     */
+    public function execFile($file)
+    {
+        // This is safer as variables are scoped.
+        $this->getCli()->whisper('Executing ' . $file . ' ...');
+
+        return include $file;
+    }
+
+    /**
+     * Executes a shell command
+     *
+     * @param string $command
+     *
+     * @param bool   $verbose if true, the output will be printed
+     *
+     * @return int|null Return status of the executed command
+     */
+    public function execCmd($command, $verbose = true)
+    {
+        $output = [];
+        $result = null;
+
+        exec($command . ' 2>&1', $output, $result);
+
+        if (!$verbose) {
+            return $result;
+        }
+
+        foreach ($output as $line) {
+            echo $line . PHP_EOL;
+        }
+
+        return $result;
     }
 
     public function exportDbToCsv()

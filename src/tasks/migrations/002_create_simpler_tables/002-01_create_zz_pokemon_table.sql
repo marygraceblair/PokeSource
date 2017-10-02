@@ -53,10 +53,10 @@ CREATE TABLE IF NOT EXISTS zz_pokemon (
   pokemon_order           INT,
   form_order              INT,
   form_order2             INT,
-  PRIMARY KEY (id),
-  FOREIGN KEY (pokemon_species_id) REFERENCES pokemon_species (id),
-  FOREIGN KEY (pokemon_id) REFERENCES pokemon (id),
-  FOREIGN KEY (pokemon_form_id) REFERENCES pokemon_forms (id)
+  PRIMARY KEY (id)
+  -- , FOREIGN KEY (pokemon_species_id) REFERENCES pokemon_species (id),
+  -- FOREIGN KEY (pokemon_id) REFERENCES pokemon (id),
+  -- FOREIGN KEY (pokemon_form_id) REFERENCES pokemon_forms (id)
 );
 
 

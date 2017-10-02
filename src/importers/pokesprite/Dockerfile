@@ -1,4 +1,4 @@
-FROM python:2.7-slim
+FROM php:7.1-fpm
 
 ENV LANG C.UTF-8
 
@@ -7,10 +7,8 @@ RUN echo "Upgrading distro..." && \
     apt-get upgrade -y > /dev/null && \
 
     echo "Installing dependencies..." && \
-    apt-get install -y git locales > /dev/null && \
+    apt-get install -y git curl jq libcurl4-gnutls-dev sqlite3 libsqlite3-dev locales  > /dev/null && \
     locale-gen en_GB.UTF-8 > /dev/null && \
-    apt-get install -y python-distribute > /dev/null && \
-    pip install --no-cache-dir virtualenv psycopg2 pymysql > /dev/null && \
 
     echo "Optimizing space..." && \
     apt-get remove --purge -y software-properties-common > /dev/null && \
@@ -26,4 +24,4 @@ COPY ./docker-entrypoint.sh /docker-entrypoint
 RUN chmod +x /docker-entrypoint
 
 ENTRYPOINT ["/docker-entrypoint"]
-CMD ["status"]
+CMD ["help"]

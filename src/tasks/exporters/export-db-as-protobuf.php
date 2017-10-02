@@ -1,8 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../bootstrap.php';
-
 /** @var \Pokettomonstaa\Database\App $app */
+$app = $this;
 
 // Create Protocol Buffer files
 $proto_path = $app->assureDir($app->distPath . '/proto/Pokemon/Enums');

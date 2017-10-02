@@ -1,9 +1,9 @@
 version: '2.1'
 services:
-  nginx:
+  web:
     image: nginx:1.13
     depends_on:
-      - phpfpm
+      - web_phpfpm
     environment:
       NGINX_PORT: "80"
     ports:
@@ -11,29 +11,31 @@ services:
     volumes:
       - ./:/project
       - ./src/web/web.conf:/etc/nginx/conf.d/default.conf
-  phpfpm:
+  web_phpfpm:
     build: ./src/web/
+    volumes:
+      - ./:/project
+      - ./src/web/php.ini:/usr/local/etc/php/conf.d/php.ini
+  tasks:
+    build: ./src/tasks/
+    volumes:
+      - ./:/project
+      - ./src/web/php.ini:/usr/local/etc/php/conf.d/php.ini
+  importer_pokesprite:
+    build: ./src/importers/pokesprite/
     environment:
-      INTERNAL_API_HOST: "nginx:80"
-      API_HOST: "localhost:8151"
-      PROJECT_PATH: "/project"
-      BUILD_PATH: "/project/build"
-      DIST_PATH: "/project/dist"
-      DB_FILE: "/project/build/pokedex.sqlite"
+      COMMIT_REF: "d66f323c3019a28919c9aa97e14dc5447e19c2a4" # Add minimal package.json for Yarn support (PR #29)
     volumes:
       - ./:/project
   importer_showdown:
     build: ./src/importers/showdown/
     environment:
-      PROJECT_PATH: "/project"
-      BUILD_PATH: "/project/build"
-      SOURCES_PATH: "/project/vendor/pokemon-showdown"
+      COMMIT_REF: "2aa8f12ea63e53cc1f6c8882dea86988dbf0bb3b" # Trivia: make searching results scroll (#4030)
     volumes:
       - ./:/project
   importer_veekun:
     build: ./src/importers/veekun/
     environment:
-      PROJECT_PATH: "/project"
-      SOURCES_PATH: "/project/vendor/veekun-pokedex"
+      COMMIT_REF: "73f388ed69f96b6ed7b18c6151f15883304dcb5c" # veekun-promotions/2017090401 (tag)
     volumes:
       - ./:/project

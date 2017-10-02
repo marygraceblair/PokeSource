@@ -4,10 +4,10 @@ set -e
 cd /project
 source ./src/env.sh
 
-export REPO_PATH=${PROJECT_PATH}/vendor/pokemon-showdown
+export REPO_PATH=${VENDOR_PATH}/msikma-pokesprite/
 
-if [ ! -d "${REPO_PATH}/data" ] ; then
-    git_require Zarel/Pokemon-Showdown pokemon-showdown master
+if [ ! -d "${REPO_PATH}/icons/pokemon" ] ; then
+    git_require msikma/pokesprite msikma-pokesprite master
     cd $REPO_PATH
     git reset --hard $COMMIT_REF
     cd $PROJECT_PATH
@@ -18,13 +18,19 @@ __fn_help() {
     echo "List of commands:"
     echo "--------------------"
     echo "help (default)"
-    echo "import [@]: Imports all needed content from the Zarel/Pokemon-Showdown project."
+    echo "import [@]: Imports all needed content from the msikma/pokesprite project."
     echo "--------------------"
+    exit
 }
 
 __fn_import() {
-    rm -rf ${BUILD_PATH}/showdown
-    ./src/importers/showdown/import.sh ${@:2}
+    rm -rf ${BUILD_PATH}/pokesprite
+    rm -rf ${DIST_PATH}/assets/img
+
+    mkdir -p ${BUILD_PATH}/pokesprite
+    mkdir -p ${DIST_PATH}/assets/img
+
+    php ./src/importers/pokesprite/import.php
     exit
 }
 

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+./scripts/generate-sprite pokemon pk-m
+./scripts/generate-sprite items pk-i 1
+gulp

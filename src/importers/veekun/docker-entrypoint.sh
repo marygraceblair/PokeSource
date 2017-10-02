@@ -1,42 +1,53 @@
 #!/usr/bin/env bash
 set -e
 
-if [ -z "${PROJECT_PATH}" ]; then
-    echo "PROJECT_PATH is not set. Aborting..."
-    exit 1
+cd /project
+source ./src/env.sh
+
+export REPO_PATH=${PROJECT_PATH}/vendor/veekun-pokedex
+
+if [ ! -d "${REPO_PATH}/pokedex" ] ; then
+    git_require veekun/pokedex veekun-pokedex master
+    cd $REPO_PATH
+    git reset --hard $COMMIT_REF
+    cd $PROJECT_PATH
 fi
 
-if [ -z "${SOURCES_PATH}" ]; then
-    echo "SOURCES_PATH is not set. Aborting..."
-    exit 1
-fi
-cd ${SOURCES_PATH}
+cd ${REPO_PATH}
 
-if [ ! -d "${PROJECT_PATH}/vendor/veekun-pokedex/pokedex" ] ; then
-    ./src/git-require.sh veekun/pokedex veekun-pokedex master
-fi
-
-if [ ! -f "${SOURCES_PATH}/bin/python" ] || [ ! -f "${SOURCES_PATH}/bin/veekun-pokedex" ] ; then
-    echo "Building the bin/veekun-pokedex executable ..."
-    virtualenv $SOURCES_PATH --python=python2
+if [ ! -f "${REPO_PATH}/bin/python" ] || [ ! -f "${REPO_PATH}/bin/pokedex" ] ; then
+    echo "Building the bin/pokedex executable ..."
+    virtualenv $REPO_PATH --python=python2
     bin/python setup.py develop
 fi
 
 __fn_import() {
-    rm -rf ${SOURCES_PATH}/pokedex/data/pokedex.sqlite ${PROJECT_PATH}/build/*.sqlite
-    mkdir -p ${PROJECT_PATH}/build
-    bin/pokedex setup
-    cp ${SOURCES_PATH}/pokedex/data/pokedex.sqlite ${PROJECT_PATH}/build/pokedex.sqlite
+    rm -rf ${REPO_PATH}/pokedex/data/pokedex.sqlite ${BUILD_PATH}/*.sqlite
+    bin/pokedex status
+    bin/pokedex setup $@
+    cp ${REPO_PATH}/pokedex/data/pokedex.sqlite ${BUILD_PATH}/pokedex.sqlite
     exit
 }
 
 case "$1" in
    "") bin/pokedex help
    ;;
-   "import") __fn_import
+   "import") __fn_import ${@:2}
    ;;
-   "exec") exec ${@:2}
+   "setup") bin/pokedex $@
    ;;
-   *) bin/pokedex $@
+   "status") bin/pokedex $@
+   ;;
+   "load") bin/pokedex $@
+   ;;
+   "dump") bin/pokedex $@
+   ;;
+   "reindex") bin/pokedex $@
+   ;;
+   "help") bin/pokedex $@
+   ;;
+   "lookup") bin/pokedex $@
+   ;;
+   *) exec ${@}
    ;;
 esac

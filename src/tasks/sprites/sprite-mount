@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# This script creates the sprite sheet from the icons folder
+# Also generates the sprite CSS file.
+
+readlink -f ./ >> /dev/null || exit 1
+
+_NAME=${1:-'pokemon'} # used as base name of the generated files
+
+### OPTIONS
+__PATH__=`readlink -f ./`
+_TRIM=1 # Trim empty space of each icon and the final file?
+_PADDING=1 # Padding between icons (will be x2)
+_MAX_COLS=38 # Maximum icons per row
+_ICONS_TMP_PATH="${__PATH__}/graphics/${_NAME}_tmp"
+_ICONS_FILE="${__PATH__}/dist/img/${_NAME}.png"
+
+cd ${_ICONS_TMP_PATH}
+# Mount sprite with 35 tiles per row and a padding of 2x2 pixels each
+echo "Mounting sprite ${_NAME}.png ..."
+montage -background none *.png -gravity NorthWest -tile ${_MAX_COLS}x -geometry +${_PADDING}+${_PADDING} ${_ICONS_FILE}
+
+# Go to the root dir
+cd ${__PATH__}
+
+if [ ${_TRIM} -eq 1 ]
+then
+    echo "Remove surrounding empty space of final sprite image..."
+    mogrify -trim ${_ICONS_FILE}
+fi
+
+# Remove the temporary dir
+rm -rf ${_ICONS_TMP_PATH}
