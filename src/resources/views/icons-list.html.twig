@@ -1,7 +1,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Poketto Monstaa Data API - Pokemon List</title>
+    <title>Poketto Monstaa Data API - Icons List</title>
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <style>
         * {
@@ -66,7 +66,7 @@
 
 <body>
 <div class="main container">
-    <h1 class="lead">Poketto Monstaa Data API - Pokemon List</h1>
+    <h1 class="lead">Poketto Monstaa Data API - Icons List</h1>
     <ul class="pkm-list">
         {% for pkm in icons %}
             <li class="pkm-list-item" title="{{ pkm.form_name|default(pkm.name) }}">

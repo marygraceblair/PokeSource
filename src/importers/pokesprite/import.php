@@ -50,6 +50,10 @@ $folderSuffixes = [
     'z-crystals'    => '!-bag',
 ];
 
+$itemRenames = [
+    'glalite' => 'glalitite'
+];
+
 $app->assureDir($destPath . '/items');
 
 foreach ($folderSuffixes as $folderName => $suffix) {

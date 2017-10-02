@@ -16,28 +16,44 @@ $pokemon_species = $app->sendApiRequest('/pokemon_species', [
     'transform' => 1,
 ]);
 
-$getIconUrl = function ($name, $folder = '/regular') use ($app) {
-    $file = $app->publicPath . "/assets/pokesprite/icons/pokemon{$folder}/{$name}.png";
+$items = $app->sendApiRequest('/items', [
+    'transform' => 1,
+]);
+
+$getPokemonIconUrl = function ($name, $folder = '/regular') use ($app) {
+    $file = $app->buildPath . "/pokesprite/pokemon{$folder}/{$name}.png";
 
     if (!file_exists($file)) {
         $name = "unknown";
         $folder = "";
     }
 
-    return "{$app->baseUrl}/assets/pokesprite/icons/pokemon{$folder}/{$name}.png";
+    return "{$app->baseUrl}/assets/pokesprite/pokemon{$folder}/{$name}.png";
 };
 
-$icons = [];
+$getItemIconUrl = function ($name) use ($app) {
+    $folder = "items";
+    $file = $app->buildPath . "/pokesprite/items/{$name}.png";
+
+    if (!file_exists($file)) {
+        $name = "unknown-item";
+        $folder = "other";
+    }
+
+    return "{$app->baseUrl}/assets/pokesprite/{$folder}/{$name}.png";
+};
+
+$pokemonIcons = [];
 
 foreach ($pokemon_species['pokemon_species'] as $species) {
     $species_id = $species['id'];
     $species_name = $species['identifier'];
 
-    $icons[$species_id] = [
+    $pokemonIcons[$species_id] = [
         'id'        => $species_id,
         'name'      => $species_name,
         'api_url'   => $app->buildApiUrl('/zz_pokemon/' . $species_id, ['transform' => 1]),
-        'icon_url'  => $getIconUrl($species_name),
+        'icon_url'  => $getPokemonIconUrl($species_name),
         'forms'     => [],
         'form_name' => null,
     ];
@@ -46,15 +62,15 @@ foreach ($pokemon_species['pokemon_species'] as $species) {
         $pokemon_name = $pkm['identifier'];
 
         if ($pokemon_name != $species_name) {
-            $icons[$species_id]['forms'][$pokemon_name] = [
+            $pokemonIcons[$species_id]['forms'][$pokemon_name] = [
                 'name'       => $pokemon_name,
-                'icon_url'   => $getIconUrl($pokemon_name),
+                'icon_url'   => $getPokemonIconUrl($pokemon_name),
                 'is_default' => $pkm['is_default'],
             ];
 
-            if ($pkm['is_default'] && !$icons[$species_id]['form_name']) {
-                $icons[$species_id]['form_name'] = $pokemon_name;
-                unset($icons[$species_id]['forms'][$pokemon_name]);
+            if ($pkm['is_default'] && !$pokemonIcons[$species_id]['form_name']) {
+                $pokemonIcons[$species_id]['form_name'] = $pokemon_name;
+                unset($pokemonIcons[$species_id]['forms'][$pokemon_name]);
             }
         }
 
@@ -62,22 +78,41 @@ foreach ($pokemon_species['pokemon_species'] as $species) {
             $form_name = $form['identifier'];
 
             if (($form_name != $species_name) && ($form_name != $pokemon_name)) {
-                $icons[$species_id]['forms'][$form_name] = [
+                $pokemonIcons[$species_id]['forms'][$form_name] = [
                     'name'       => $form_name,
-                    'icon_url'   => $getIconUrl($form_name),
+                    'icon_url'   => $getPokemonIconUrl($form_name),
                     'is_default' => $pkm['is_default'],
                 ];
 
-                if ($form['is_default'] && !$icons[$species_id]['form_name']) {
-                    $icons[$species_id]['form_name'] = $form_name;
-                    unset($icons[$species_id]['forms'][$form_name]);
+                if ($form['is_default'] && !$pokemonIcons[$species_id]['form_name']) {
+                    $pokemonIcons[$species_id]['form_name'] = $form_name;
+                    unset($pokemonIcons[$species_id]['forms'][$form_name]);
                 }
             }
         }
     }
 }
 
+
+$itemsIcons = [];
+foreach ($items['items'] as $item) {
+    $item_id = $item['id'];
+    $item_name = $item['identifier'];
+
+    $itemsIcons[$item_id] = [
+        'id'        => $item_id,
+        'name'      => $item_name,
+        'api_url'   => $app->buildApiUrl('/items/' . $item_id, ['transform' => 1]),
+        'icon_url'  => $getItemIconUrl($item_name),
+        'forms'     => [],
+        'form_name' => null,
+    ];
+}
+
 // header('Content-Type: application/json');
 // echo json_encode(array_values($icons));
 
-echo $app->renderTemplate('icons-list.html', ['icons' => $icons]);
+echo $app->renderTemplate(
+    'icons-list.html',
+    ['icons' => array_merge(array_values($pokemonIcons), array_values($itemsIcons))]
+);
