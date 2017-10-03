@@ -1,9 +1,0 @@
-syntax = "proto3";
-package Pokemon.Enums;
-
-enum Gender {
-    _DEFAULT = 0;
-    FEMALE = 1;
-    MALE = 2;
-    GENDERLESS = 3;
-}
