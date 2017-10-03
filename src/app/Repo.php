@@ -29,14 +29,15 @@ class Repo
      */
     public function getPokemonIconUrl($name, $folder = '/regular')
     {
-        $file = $this->app->buildPath . "/pokesprite/icons/pokemon{$folder}/{$name}.png";
+        $folder = '/pokemon' . $folder;
+        $file = $this->app->distPath . "/assets/img/icons/{$folder}/{$name}.png";
 
         if (!file_exists($file)) {
             $name = "unknown";
-            $folder = "";
+            $folder = "other";
         }
 
-        return "{$this->app->baseUrl}/assets/pokesprite/icons/pokemon{$folder}/{$name}.png";
+        return "{$this->app->baseUrl}/assets/img/icons/{$folder}/{$name}.png";
     }
 
     /**
@@ -47,14 +48,14 @@ class Repo
     public function getItemIconUrl($name)
     {
         $folder = "items";
-        $file = $this->app->buildPath . "/pokesprite/icons/items/{$name}.png";
+        $file = $this->app->distPath . "/assets/img/icons/items/{$name}.png";
 
         if (!file_exists($file)) {
             $name = "unknown";
-            $folder = "pokemon";
+            $folder = "other";
         }
 
-        return "{$this->app->baseUrl}/assets/pokesprite/icons/{$folder}/{$name}.png";
+        return "{$this->app->baseUrl}/assets/img/icons/{$folder}/{$name}.png";
     }
 
     /**
@@ -100,7 +101,7 @@ class Repo
 
                     if ($pkm['is_default'] && !$dtos[$species_id]['form_name']) {
                         $dtos[$species_id]['form_name'] = $pokemon_name;
-                        unset($dtos[$species_id]->forms[$pokemon_name]);
+                        //unset($dtos[$species_id]->forms[$pokemon_name]);
                     }
                 }
 
@@ -116,7 +117,7 @@ class Repo
 
                         if ($form['is_default'] && !$dtos[$species_id]['form_name']) {
                             $dtos[$species_id]['form_name'] = $form_name;
-                            unset($dtos[$species_id]->forms[$form_name]);
+                            //unset($dtos[$species_id]->forms[$form_name]);
                         }
                     }
                 }

@@ -21,19 +21,19 @@ services:
     volumes:
       - ./:/project
       - ./src/web/php.ini:/usr/local/etc/php/conf.d/php.ini
-  importer_pokesprite:
+  importer_pokesprite: # assets
     build: ./src/importers/pokesprite/
     environment:
       COMMIT_REF: "d66f323c3019a28919c9aa97e14dc5447e19c2a4" # Add minimal package.json for Yarn support (PR #29)
     volumes:
       - ./:/project
-  importer_showdown:
+  importer_showdown: # strategies
     build: ./src/importers/showdown/
     environment:
       COMMIT_REF: "2aa8f12ea63e53cc1f6c8882dea86988dbf0bb3b" # Trivia: make searching results scroll (#4030)
     volumes:
       - ./:/project
-  importer_veekun:
+  importer_veekun: # base DB
     build: ./src/importers/veekun/
     environment:
       COMMIT_REF: "73f388ed69f96b6ed7b18c6151f15883304dcb5c" # veekun-promotions/2017090401 (tag)
