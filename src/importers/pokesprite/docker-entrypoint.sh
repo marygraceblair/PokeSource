@@ -24,12 +24,6 @@ __fn_help() {
 }
 
 __fn_import() {
-    rm -rf ${BUILD_PATH}/pokesprite
-    rm -rf ${DIST_PATH}/assets/img
-
-    mkdir -p ${BUILD_PATH}/pokesprite
-    mkdir -p ${DIST_PATH}/assets/img
-
     php ./src/importers/pokesprite/import.php
     exit
 }

@@ -4,7 +4,7 @@
 $app = $this;
 
 // Create Protocol Buffer files
-$proto_path = $app->assureDir($app->distPath . '/proto/Pokemon/Enums');
+$proto_path = $app->assureDir($app->distPath . '/code/protobuf/Pokemon/Enums');
 
 $proto_enums = [
     'Species'    => 'SELECT id, name FROM zz_pokemon WHERE form_category IS NULL ORDER BY id',
@@ -28,15 +28,61 @@ $proto_enums = [
 
 $app->getCli()->lightBlue("Creating Protocol Buffer enum files...");
 
+/**
+ * Generates a Protocol Buffer enum out of an SQL query
+ *
+ * @param string $enumName
+ * @param string $sql
+ * @param bool   $usePrefix
+ * @param string $nameColumn
+ * @param string $idColumn
+ *
+ * @return string The generated protobuf code
+ */
+$createProtoEnumFromQuery = function (
+    $enumName,
+    $sql,
+    $usePrefix = false,
+    $nameColumn = 'name',
+    $idColumn = 'id'
+) use ($app) {
+    $records = $app->getDb()->query($sql);
+    $prefix = \Stringy\Stringy::create($enumName)->underscored()->toUpperCase();
+    $defaultItem = ['name' => '_DEFAULT', 'id' => 0];
+    $templateData = ['enumName' => $enumName, 'items' => [(object)$defaultItem]];
+
+    while ($record = $records->fetch(\PDO::FETCH_OBJ)) {
+        $id = null;
+        $name = null;
+
+        if ($nameColumn) {
+            $name = ($usePrefix ? ($prefix . '_') : '') .
+                \Stringy\Stringy::create($record->{$nameColumn})->slugify('_')->toUpperCase();
+
+            if (!preg_match('/^[A-Z_]/', $name)) {
+                $name = "_" . $name; // safer enum name
+            }
+
+            if (!preg_match('/^[A-Z_]([A-Z0-9_])?.*/', $name)) {
+                throw new \RuntimeException("Cannot use '{$name}' as a ProtoBuf constant name for '{$enumName}'.");
+            }
+        }
+
+        $record->id = $idColumn ? $record->{$idColumn} : null;
+        $record->name = $name;
+
+        $templateData['items'][] = $record;
+    }
+    $proto = $app->renderTemplate('enum.proto', $templateData);
+
+    return $proto;
+};
+
 foreach ($proto_enums as $proto_enum => $proto_sql) {
-    $proto_code = $app->createProtoBufEnumFromQuery($proto_enum, $proto_sql);
+    $proto_code = $createProtoEnumFromQuery($proto_enum, $proto_sql);
     $proto_file = $proto_path . DIRECTORY_SEPARATOR . $proto_enum . '.proto';
     $app->getCli()->out(" > " . str_replace($app->distPath, 'dist', $proto_file));
     file_put_contents($proto_file, $proto_code);
 }
 
 $app->getCli()->green("DONE!");
-
-
-// Stop locking DB file
-$app->getDb()->close();

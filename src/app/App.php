@@ -6,7 +6,6 @@ use Doctrine\DBAL;
 use GuzzleHttp\Client;
 use League\CLImate\CLImate;
 use PDO;
-use Stringy\Stringy;
 
 class App
 {
@@ -79,6 +78,11 @@ class App
      */
     private $repo;
 
+    /**
+     * @var \Twig_Environment
+     */
+    private $twig;
+
     public function __construct()
     {
         $srv = collect($_SERVER);
@@ -139,56 +143,6 @@ class App
         }
 
         return $this->twig->render($name . '.twig', $vars);
-    }
-
-    /**
-     * Generates a Protocol Buffer enum out of an SQL query
-     *
-     * @param string $enumName
-     * @param string $sql
-     * @param bool   $usePrefix
-     * @param string $nameColumn
-     * @param string $idColumn
-     *
-     * @return string The generated protobuf code
-     */
-    public function createProtoBufEnumFromQuery(
-        $enumName,
-        $sql,
-        $usePrefix = false,
-        $nameColumn = 'name',
-        $idColumn = 'id'
-    ) {
-        $records = $this->getDb()->query($sql);
-        $prefix = Stringy::create($enumName)->underscored()->toUpperCase();
-        $defaultItem = ['name' => '_DEFAULT', 'id' => 0];
-        $templateData = ['enumName' => $enumName, 'items' => [(object)$defaultItem]];
-
-        while ($record = $records->fetch(\PDO::FETCH_OBJ)) {
-            $id = null;
-            $name = null;
-
-            if ($nameColumn) {
-                $name = ($usePrefix ? ($prefix . '_') : '') .
-                    Stringy::create($record->{$nameColumn})->slugify('_')->toUpperCase();
-
-                if (!preg_match('/^[A-Z_]/', $name)) {
-                    $name = "_" . $name; // safer enum name
-                }
-
-                if (!preg_match('/^[A-Z_]([A-Z0-9_])?.*/', $name)) {
-                    throw new \RuntimeException("Cannot use '{$name}' as a ProtoBuf constant name for '{$enumName}'.");
-                }
-            }
-
-            $record->id = $idColumn ? $record->{$idColumn} : null;
-            $record->name = $name;
-
-            $templateData['items'][] = $record;
-        }
-        $proto = $this->renderTemplate('enum.proto', $templateData);
-
-        return $proto;
     }
 
     /**
@@ -359,77 +313,6 @@ class App
     }
 
     /**
-     * @param string   $migration_name
-     * @param callable $callable
-     * @param array    $args
-     *
-     * @return mixed|null
-     */
-    public function runMigration($migration_name, $callable, array $args = [])
-    {
-        $found_migration = $this->getDb()
-            ->query("SELECT * FROM `$this->migrationsTable` WHERE name='${migration_name}'")
-            ->fetch(PDO::FETCH_ASSOC);
-
-        if (is_array($found_migration) && ($found_migration['name'] == $migration_name)) {
-            $this->getCli()->whisper()->out("Skipping already executed '${migration_name}' migration...");
-
-            return null;
-        }
-
-        $this->getCli()->green()->inline("Running '${migration_name}' migration...");
-
-        $result = call_user_func_array($callable, $args);
-        $this->dbExecTransactional("INSERT INTO `$this->migrationsTable` (name) VALUES ('$migration_name')");
-
-        return $result;
-    }
-
-    /**
-     * @return \Closure[]
-     */
-    public function getMigrations()
-    {
-        $raw_sql_migration = function ($sql) {
-            return $this->dbExecTransactional($sql);
-        };
-
-        $migrations_path = $this->migrationsPath;
-
-        $dir_iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($migrations_path, \RecursiveDirectoryIterator::SKIP_DOTS)
-        );
-
-        $migration_callables = [];
-
-        foreach ($dir_iterator as $file) {
-            if (pathinfo($file, PATHINFO_EXTENSION) == "php") {
-                $migration_name = strtolower(str_replace('.php', '', pathinfo($file, PATHINFO_FILENAME)));
-
-                $migration_callables[$migration_name] = [include $file, []];
-            }
-        }
-
-        foreach ($dir_iterator as $file) {
-            if (pathinfo($file, PATHINFO_EXTENSION) == "sql") {
-                $migration_name = strtolower(str_replace('.sql', '', pathinfo($file, PATHINFO_FILENAME)));
-
-                $sql = file_get_contents($file);
-
-                if (isset($migration_files[$migration_name])) {
-                    $migration_callables[$migration_name][] = [$sql];
-                } else {
-                    $migration_callables[$migration_name] = [$raw_sql_migration, [$sql]];
-                }
-            }
-        }
-
-        ksort($migration_callables, SORT_ASC);
-
-        return $migration_callables;
-    }
-
-    /**
      * Executes a PHP script file
      *
      * @param string $file
@@ -469,52 +352,5 @@ class App
         }
 
         return $result;
-    }
-
-    public function exportDbToCsv()
-    {
-        $db = $this->getDb();
-
-        $export_path = $this->assureDir($this->distPath . '/csv');
-
-        $tables = $db->getSchemaManager()->listTables();
-
-        $this->getCli()->lightBlue("Creating CSV data files...");
-
-        foreach ($tables as $table) {
-            $tableName = $table->getName();
-
-            if (
-                in_array($tableName, ['db_migrations'])
-                | preg_match('/^(sys\\/|sqlite_).*/', $tableName)
-            ) {
-                continue;
-            }
-
-            $export_file = $export_path . "/{$tableName}.csv";
-            # @unlink($export_file);
-
-            $output = '';
-            $this->getCli()->out(" > " . str_replace($this->distPath, 'dist', $export_file));
-
-            if ($table->hasPrimaryKey()) {
-                $orderBy = "ORDER BY 1 ASC";
-            } else {
-                $orderBy = "ORDER BY 1 ASC, 2 ASC";
-            }
-
-            exec(
-                'sql2csv' .
-                ' --db "sqlite:///' . $this->dbFile . '"' .
-                ' --query "SELECT * FROM \\`' . $tableName . '\\` ' . $orderBy . '"' .
-                " > ${export_file}",
-                $output
-            );
-
-            $output = (array)$output;
-            foreach ($output as $line) {
-                $this->getCli()->out($line);
-            }
-        }
     }
 }

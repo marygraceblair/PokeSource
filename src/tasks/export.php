@@ -4,6 +4,9 @@ require_once __DIR__ . '/../bootstrap.php';
 
 /** @var \Pokettomonstaa\App\App $app */
 
+// Cleanup
+$app->execCmd('rm -rf ' . $app->distPath . '/assets/img/*');
+
 $dirIterator = new \RecursiveIteratorIterator(
     new \RecursiveDirectoryIterator(__DIR__ . '/exporters', \RecursiveDirectoryIterator::SKIP_DOTS)
 );
@@ -13,6 +16,7 @@ foreach ($dirIterator as $filepath) {
     $ext = pathinfo($filepath, PATHINFO_EXTENSION);
     $filename = pathinfo($filepath, PATHINFO_FILENAME);
     if (
+        $filename == 'export-icons' &&
         (pathinfo($filepath, PATHINFO_EXTENSION) == "php")
         && (preg_match('/^export-.*/', $filename))
     ) {
@@ -31,7 +35,7 @@ foreach ($dirIterator as $filepath) {
 
 // Creates DB bundle:
 $app->getCli()->lightBlue('Creating DB bundle...');
-$export_path = $app->assureDir($app->distPath . '/db');
+$export_path = $app->assureDir($app->distPath . '/data/db');
 $cmd = 'zip -j "' . $export_path . DIRECTORY_SEPARATOR . 'pokemon.sqlite.zip" ' .
     ' "' . $app->dbFile . '" ';
 

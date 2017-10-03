@@ -63,6 +63,4 @@ class AbstractDto implements Arrayable, Jsonable, \ArrayAccess
     {
         unset($this->$offset);
     }
-
-
 }
